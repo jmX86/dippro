@@ -1,0 +1,11 @@
+services:
+  broker:
+    build: broker
+    networks:
+      - internal-net
+    ports:
+      - 1883:1883
+    restart: always
+
+networks:
+  internal-net:
