@@ -6,6 +6,38 @@ services:
     ports:
       - 1883:1883
     restart: always
+  speed-app:
+    build: git_repo/speed-app
+    networks:
+      - internal-net
+    links:
+      - broker:broker
+    restart: always
+  model-api:
+    build:
+      context: ./git_repo/traffic-api-model/model-api
+      dockerfile: Dockerfile
+    container_name: model-api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - internal-net
+    environment:
+      PORT: "8000"
 
+  agent:
+    build:
+      context: ./git_repo/traffic-api-model/agent
+      dockerfile: Dockerfile
+    container_name: agent
+    restart: unless-stopped
+    depends_on:
+      - model-api
+    networks:
+      - internal-net
+    environment:
+      API_URL: "http://model-api:8000"
+      SENSOR_DATA_URL: "http://speed-app:8080"
 networks:
   internal-net:
